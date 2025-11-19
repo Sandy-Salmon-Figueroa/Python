@@ -2,226 +2,139 @@ from datetime import datetime
 
 class ControlAsistencia:
     def __init__(self):
-        """Inicializa el sistema de asistencia"""
-        self.asistentes = set()  # Para evitar duplicados
-        self.registro_horas = {}  # Para guardar hora de ingreso
+        self.asistentes = {}  # nombre: hora
     
-    def registrar_asistencia(self, nombre):
-        """
-        Registra la asistencia de una persona
-        
-        Args:
-            nombre (str): Nombre de la persona
-            
-        Returns:
-            bool: True si se registró exitosamente, False si ya estaba registrada
-        """
+    def registrar(self, nombre):
+        """Registra a un asistente"""
         nombre = nombre.strip().title()
         
         if nombre in self.asistentes:
-            print(f"❌ {nombre} ya está registrado en el sistema")
+            print(f"❌ {nombre} ya está registrado")
             return False
         
-        # Registrar asistencia
-        hora_actual = datetime.now().strftime("%H:%M:%S")
-        self.asistentes.add(nombre)
-        self.registro_horas[nombre] = hora_actual
+        hora = datetime.now().strftime("%H:%M")
+        self.asistentes[nombre] = hora
         
-        print(f"✅ {nombre} registrado exitosamente a las {hora_actual}")
+        print(f"✅ {nombre} - {hora}")
         return True
     
-    def verificar_asistencia(self, nombre):
-        """
-        Verifica si una persona ya asistió
-        
-        Args:
-            nombre (str): Nombre de la persona
-            
-        Returns:
-            bool: True si ya asistió, False si no
-        """
+    def verificar(self, nombre):
+        """Verifica si alguien asistió"""
         nombre = nombre.strip().title()
         
         if nombre in self.asistentes:
-            hora_registro = self.registro_horas[nombre]
-            print(f"✅ {nombre} SÍ asistió (registrado a las {hora_registro})")
+            print(f"✅ {nombre} asistió a las {self.asistentes[nombre]}")
             return True
         else:
-            print(f"❌ {nombre} NO ha asistido")
+            print(f"❌ {nombre} no está registrado")
             return False
     
-    def mostrar_total_asistentes(self):
-        """Muestra el número total de asistentes únicos"""
+    def total(self):
+        """Muestra el total de asistentes"""
         total = len(self.asistentes)
-        print(f"\n👥 TOTAL DE ASISTENTES ÚNICOS: {total}")
+        print(f"\n👥 Total: {total} personas")
         return total
     
-    def mostrar_lista_completa(self):
-        """Muestra la lista completa de asistentes con sus horas de registro"""
+    def lista(self):
+        """Muestra la lista de asistentes"""
         if not self.asistentes:
-            print("📋 No hay asistentes registrados")
+            print("📝 Aún no hay asistentes")
             return
         
-        print("\n" + "="*60)
-        print("📋 LISTA COMPLETA DE ASISTENTES")
-        print("="*60)
+        print("\n" + "="*30)
+        print("📋 LISTA DE ASISTENTES")
+        print("="*30)
         
-        # Ordenar por hora de registro
-        asistentes_ordenados = sorted(
-            self.registro_horas.items(), 
-            key=lambda x: x[1]  # Ordenar por hora
-        )
-        
-        for i, (nombre, hora) in enumerate(asistentes_ordenados, 1):
-            print(f"{i:2d}. {nombre:<20} - Hora de registro: {hora}")
+        # Ordenar por hora
+        for i, (nombre, hora) in enumerate(sorted(self.asistentes.items(), key=lambda x: x[1]), 1):
+            print(f"{i}. {nombre} - {hora}")
     
-    def obtener_estadisticas(self):
-        """Muestra estadísticas del evento"""
+    def estadisticas(self):
+        """Muestra estadísticas simples"""
+        if not self.asistentes:
+            print("📊 No hay datos aún")
+            return
+        
         total = len(self.asistentes)
+        primero = min(self.asistentes.items(), key=lambda x: x[1])
+        ultimo = max(self.asistentes.items(), key=lambda x: x[1])
         
-        if total == 0:
-            print("📊 No hay estadísticas disponibles (sin asistentes)")
-            return
-        
-        # Encontrar primero y último en registrarse
-        horas_items = list(self.registro_horas.items())
-        primero = min(horas_items, key=lambda x: x[1])
-        ultimo = max(horas_items, key=lambda x: x[1])
-        
-        print("\n" + "="*50)
-        print("📊 ESTADÍSTICAS DEL EVENTO")
-        print("="*50)
-        print(f"Total de asistentes únicos: {total}")
-        print(f"Primer asistente: {primero[0]} a las {primero[1]}")
-        print(f"Último asistente: {ultimo[0]} a las {ultimo[1]}")
-        
-        # Calcular distribución por hora (simplificado)
-        horas = [hora.split(':')[0] for hora in self.registro_horas.values()]
-        hora_mas_concurrida = max(set(horas), key=horas.count)
-        print(f"Hora de mayor concurrencia: {hora_mas_concurrida}:00")
-    
-    def exportar_lista(self):
-        """Exporta la lista de asistentes a un formato legible"""
-        if not self.asistentes:
-            print("No hay datos para exportar")
-            return
-        
-        lista_export = []
-        lista_export.append("="*50)
-        lista_export.append("LISTA DE ASISTENTES AL SEMINARIO")
-        lista_export.append("="*50)
-        
-        asistentes_ordenados = sorted(
-            self.registro_horas.items(), 
-            key=lambda x: x[1]
-        )
-        
-        for nombre, hora in asistentes_ordenados:
-            lista_export.append(f"- {nombre} (registrado a las {hora})")
-        
-        lista_export.append(f"\nTotal: {len(self.asistentes)} asistentes")
-        lista_export.append(f"Generado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        
-        return "\n".join(lista_export)
+        print("\n" + "="*25)
+        print("📊 ESTADÍSTICAS")
+        print("="*25)
+        print(f"Total: {total} personas")
+        print(f"Primero: {primero[0]} - {primero[1]}")
+        print(f"Último: {ultimo[0]} - {ultimo[1]}")
 
-# Sistema interactivo
-def sistema_interactivo():
-    """Sistema interactivo de control de asistencia"""
+def sistema_asistencia():
+    """Sistema principal de asistencia"""
     control = ControlAsistencia()
     
     while True:
-        print("\n" + "="*50)
-        print("🎓 SISTEMA DE CONTROL DE ASISTENCIA")
-        print("="*50)
-        print("1. Registrar asistencia")
-        print("2. Verificar asistencia")
-        print("3. Mostrar total de asistentes")
-        print("4. Mostrar lista completa")
-        print("5. Ver estadísticas")
-        print("6. Exportar lista")
-        print("7. Salir")
+        print("\n" + "="*20)
+        print("🎯 CONTROL ASISTENCIA")
+        print("="*20)
+        print("1. Registrar")
+        print("2. Verificar") 
+        print("3. Ver lista")
+        print("4. Total")
+        print("5. Estadísticas")
+        print("6. Salir")
         
-        opcion = input("\nSeleccione una opción (1-7): ").strip()
+        opcion = input("\nOpción: ").strip()
         
         if opcion == "1":
-            print("\n--- Registrar asistencia ---")
-            nombre = input("Nombre del asistente: ").strip()
+            nombre = input("Nombre: ").strip()
             if nombre:
-                control.registrar_asistencia(nombre)
+                control.registrar(nombre)
             else:
-                print("❌ El nombre no puede estar vacío")
+                print("❌ Ingresa un nombre")
         
         elif opcion == "2":
-            print("\n--- Verificar asistencia ---")
             nombre = input("Nombre a verificar: ").strip()
             if nombre:
-                control.verificar_asistencia(nombre)
-            else:
-                print("❌ El nombre no puede estar vacío")
+                control.verificar(nombre)
         
         elif opcion == "3":
-            print("\n--- Total de asistentes ---")
-            control.mostrar_total_asistentes()
+            control.lista()
         
         elif opcion == "4":
-            print("\n--- Lista completa de asistentes ---")
-            control.mostrar_lista_completa()
+            control.total()
         
         elif opcion == "5":
-            print("\n--- Estadísticas del evento ---")
-            control.obtener_estadisticas()
+            control.estadisticas()
         
         elif opcion == "6":
-            print("\n--- Exportar lista ---")
-            lista = control.exportar_lista()
-            print(lista)
-            
-            # Opción para guardar en archivo
-            guardar = input("\n¿Desea guardar en archivo? (s/n): ").strip().lower()
-            if guardar == 's':
-                with open('lista_asistentes.txt', 'w', encoding='utf-8') as f:
-                    f.write(lista)
-                print("✅ Lista guardada en 'lista_asistentes.txt'")
-        
-        elif opcion == "7":
             print("👋 ¡Hasta pronto!")
             break
         
         else:
-            print("❌ Opción no válida. Por favor, seleccione 1-7")
+            print("❌ Opción no válida")
 
-# Ejemplo rápido de uso
-def ejemplo_rapido():
-    """Ejemplo rápido del sistema en funcionamiento"""
-    print("🔬 EJEMPLO RÁPIDO DEL SISTEMA")
-    print("="*40)
+# Ejemplo rápido
+def demo():
+    """Demostración del sistema"""
+    print("🌟 CONTROL DE ASISTENCIA")
+    print("="*20)
     
     control = ControlAsistencia()
     
-    # Registrar algunas asistencias
-    control.registrar_asistencia("Ana García")
-    control.registrar_asistencia("Carlos López")
-    control.registrar_asistencia("María Rodríguez")
+    print("\n--- Registrando ---")
+    control.registrar("Ana García")
+    control.registrar("Carlos López")
+    control.registrar("María Rodríguez")
     
-    # Intentar duplicado
-    control.registrar_asistencia("Ana García")
+    print("\n--- Verificando ---")
+    control.verificar("Carlos López")
+    control.verificar("Pedro Sánchez")
     
-    # Verificar asistencias
-    control.verificar_asistencia("Carlos López")
-    control.verificar_asistencia("Pedro Sánchez")
+    print("\n--- Lista ---")
+    control.lista()
     
-    # Mostrar resultados
-    control.mostrar_lista_completa()
-    control.mostrar_total_asistentes()
-    
-    print("\n" + "="*40)
-    print("📊 ESTADÍSTICAS:")
-    control.obtener_estadisticas()
+    print("\n--- Estadísticas ---")
+    control.estadisticas()
 
 if __name__ == "__main__":
-    # Ejecutar ejemplo rápido
-    ejemplo_rapido()
-    
-    # Ejecutar sistema interactivo
-    print("\n\n🎮 SISTEMA INTERACTIVO")
-    sistema_interactivo()
+    demo()
+    print("\n\n🎮 MODO INTERACTIVO")
+    sistema_asistencia()
