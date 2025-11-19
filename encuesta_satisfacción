@@ -1,288 +1,193 @@
 class EncuestaSatisfaccion:
     def __init__(self):
-        """Inicializa el sistema de encuestas"""
-        self.respuestas = []  # Lista de tuplas: (cliente, puntuación, comentario)
+        self.respuestas = []  # (cliente, puntuación, comentario)
     
-    def agregar_respuesta(self, cliente, puntuacion, comentario=""):
-        """
-        Agrega una respuesta a la encuesta
-        
-        Args:
-            cliente (str): Nombre del cliente
-            puntuacion (int): Puntuación de 1 a 10
-            comentario (str): Comentario opcional del cliente
-        """
+    def agregar(self, cliente, puntuacion, comentario=""):
+        """Agrega una nueva respuesta"""
         if not 1 <= puntuacion <= 10:
-            print("❌ Error: La puntuación debe estar entre 1 y 10")
+            print("❌ La puntuación debe ser entre 1 y 10")
             return False
         
         cliente = cliente.strip().title()
-        comentario = comentario.strip()
-        
-        respuesta = (cliente, puntuacion, comentario)
+        respuesta = (cliente, puntuacion, comentario.strip())
         self.respuestas.append(respuesta)
-        print(f"✅ Respuesta de {cliente} registrada exitosamente")
+        
+        print(f"✅ {cliente} - {puntuacion}/10")
         return True
     
-    def calcular_media_satisfaccion(self):
-        """
-        Calcula la media de satisfacción
-        
-        Returns:
-            float: Media de puntuaciones
-        """
+    def promedio(self):
+        """Calcula y muestra el promedio"""
         if not self.respuestas:
-            print("📊 No hay respuestas para calcular la media")
-            return 0.0
+            print("📊 Aún no hay respuestas")
+            return 0
         
-        total_puntuaciones = sum(respuesta[1] for respuesta in self.respuestas)
-        media = total_puntuaciones / len(self.respuestas)
+        promedio = sum(r[1] for r in self.respuestas) / len(self.respuestas)
         
-        print(f"\n📊 MEDIA DE SATISFACCIÓN: {media:.2f}/10")
+        print(f"\n📊 PUNTAJE PROMEDIO: {promedio:.1f}/10")
         
-        # Clasificación de la satisfacción
-        if media >= 9:
-            print("🎉 Excelente nivel de satisfacción")
-        elif media >= 7:
-            print("👍 Buen nivel de satisfacción")
-        elif media >= 5:
-            print("😐 Satisfacción media")
+        if promedio >= 9:
+            print("🎉 ¡Excelente!")
+        elif promedio >= 7:
+            print("👍 Bien")
+        elif promedio >= 5:
+            print("😐 Regular")
         else:
-            print("⚠️ Baja satisfacción - Se requiere atención")
+            print("⚠️ Necesita mejorar")
         
-        return media
+        return promedio
     
-    def listar_comentarios_negativos(self):
-        """
-        Lista los comentarios con puntuación menor a 5
+    def comentarios_bajos(self):
+        """Muestra comentarios con puntuación baja (<5)"""
+        bajos = [r for r in self.respuestas if r[1] < 5]
         
-        Returns:
-            list: Lista de comentarios negativos
-        """
-        comentarios_negativos = [
-            respuesta for respuesta in self.respuestas 
-            if respuesta[1] < 5
-        ]
-        
-        if not comentarios_negativos:
-            print("\n✅ No hay comentarios negativos (puntuación < 5)")
+        if not bajos:
+            print("✅ No hay quejas recientes")
             return []
         
-        print("\n" + "="*60)
-        print("🔴 COMENTARIOS NEGATIVOS (Puntuación < 5)")
-        print("="*60)
+        print("\n" + "="*40)
+        print("🔴 COMENTARIOS BAJOS")
+        print("="*40)
         
-        for i, (cliente, puntuacion, comentario) in enumerate(comentarios_negativos, 1):
-            print(f"\n{i}. {cliente} - Puntuación: {puntuacion}/10")
+        for cliente, puntos, comentario in bajos:
+            print(f"\n{cliente} - {puntos}/10")
             if comentario:
-                print(f"   Comentario: '{comentario}'")
-            else:
-                print(f"   Comentario: [Sin comentario]")
+                print(f"   '{comentario}'")
         
-        print(f"\n📋 Total de comentarios negativos: {len(comentarios_negativos)}")
-        return comentarios_negativos
+        return bajos
     
-    def listar_comentarios_positivos(self):
-        """
-        Lista los comentarios con puntuación mayor o igual a 8
-        """
-        comentarios_positivos = [
-            respuesta for respuesta in self.respuestas 
-            if respuesta[1] >= 8
-        ]
+    def comentarios_altos(self):
+        """Muestra comentarios con puntuación alta (≥8)"""
+        altos = [r for r in self.respuestas if r[1] >= 8]
         
-        if not comentarios_positivos:
-            print("\n📝 No hay comentarios positivos (puntuación ≥ 8)")
+        if not altos:
+            print("📝 Aún no hay comentarios destacados")
             return []
         
-        print("\n" + "="*60)
-        print("🟢 COMENTARIOS POSITIVOS (Puntuación ≥ 8)")
-        print("="*60)
+        print("\n" + "="*40)
+        print("🟢 COMENTARIOS DESTACADOS")
+        print("="*40)
         
-        for i, (cliente, puntuacion, comentario) in enumerate(comentarios_positivos, 1):
-            print(f"\n{i}. {cliente} - Puntuación: {puntuacion}/10")
+        for cliente, puntos, comentario in altos:
+            print(f"\n{cliente} - {puntos}/10")
             if comentario:
-                print(f"   Comentario: '{comentario}'")
-            else:
-                print(f"   Comentario: [Sin comentario]")
+                print(f"   '{comentario}'")
         
-        return comentarios_positivos
+        return altos
     
-    def mostrar_estadisticas_detalladas(self):
-        """Muestra estadísticas detalladas de las encuestas"""
+    def estadisticas(self):
+        """Muestra resumen general"""
         if not self.respuestas:
-            print("📈 No hay datos para mostrar estadísticas")
+            print("📈 Aún no hay datos")
             return
         
-        total_respuestas = len(self.respuestas)
-        media = sum(respuesta[1] for respuesta in self.respuestas) / total_respuestas
+        total = len(self.respuestas)
+        promedio = sum(r[1] for r in self.respuestas) / total
         
-        # Conteo por categorías
-        muy_negativos = len([r for r in self.respuestas if r[1] <= 3])
-        negativos = len([r for r in self.respuestas if 4 <= r[1] <= 5])
-        neutrales = len([r for r in self.respuestas if 6 <= r[1] <= 7])
-        positivos = len([r for r in self.respuestas if 8 <= r[1] <= 9])
-        muy_positivos = len([r for r in self.respuestas if r[1] == 10])
+        bajos = len([r for r in self.respuestas if r[1] < 6])
+        altos = len([r for r in self.respuestas if r[1] >= 8])
         
-        print("\n" + "="*50)
-        print("📈 ESTADÍSTICAS DETALLADAS")
-        print("="*50)
-        print(f"Total de respuestas: {total_respuestas}")
-        print(f"Media de satisfacción: {media:.2f}/10")
-        print(f"\nDistribución de puntuaciones:")
-        print(f"  🔴 Muy negativas (1-3): {muy_negativos} respuestas")
-        print(f"  🟠 Negativas (4-5): {negativos} respuestas")
-        print(f"  🟡 Neutrales (6-7): {neutrales} respuestas")
-        print(f"  🟢 Positivas (8-9): {positivos} respuestas")
-        print(f"  💚 Muy positivas (10): {muy_positivos} respuestas")
-        
-        # Porcentajes
-        print(f"\nPorcentajes:")
-        print(f"  Satisfacción negativa (1-5): {(muy_negativos + negativos) / total_respuestas * 100:.1f}%")
-        print(f"  Satisfacción positiva (8-10): {(positivos + muy_positivos) / total_respuestas * 100:.1f}%")
+        print("\n" + "="*30)
+        print("📈 RESUMEN")
+        print("="*30)
+        print(f"Total respuestas: {total}")
+        print(f"Promedio: {promedio:.1f}/10")
+        print(f"Bajas (<6): {bajos}")
+        print(f"Altas (≥8): {altos}")
     
-    def mostrar_todas_respuestas(self):
-        """Muestra todas las respuestas registradas"""
+    def ver_todos(self):
+        """Muestra todas las respuestas"""
         if not self.respuestas:
-            print("📝 No hay respuestas registradas")
+            print("📝 No hay respuestas aún")
             return
         
-        print("\n" + "="*70)
-        print("📝 TODAS LAS RESPUESTAS REGISTRADAS")
-        print("="*70)
+        print("\n" + "="*30)
+        print("📝 TODAS LAS RESPUESTAS")
+        print("="*30)
         
-        for i, (cliente, puntuacion, comentario) in enumerate(self.respuestas, 1):
-            emoji = "🔴" if puntuacion < 5 else "🟢" if puntuacion >= 8 else "🟡"
-            print(f"\n{i}. {cliente} - Puntuación: {puntuacion}/10 {emoji}")
+        for cliente, puntos, comentario in self.respuestas:
+            cara = "🔴" if puntos < 5 else "🟢" if puntos >= 8 else "🟡"
+            print(f"\n{cliente} - {puntos}/10 {cara}")
             if comentario:
-                print(f"   Comentario: '{comentario}'")
-    
-    def buscar_comentarios_por_palabra(self, palabra):
-        """
-        Busca comentarios que contengan una palabra específica
-        
-        Args:
-            palabra (str): Palabra a buscar en los comentarios
-        """
-        resultados = [
-            respuesta for respuesta in self.respuestas
-            if palabra.lower() in respuesta[2].lower()
-        ]
-        
-        if not resultados:
-            print(f"\n🔍 No se encontraron comentarios con la palabra '{palabra}'")
-            return []
-        
-        print(f"\n" + "="*60)
-        print(f"🔍 COMENTARIOS CON LA PALABRA '{palabra.upper()}'")
-        print("="*60)
-        
-        for i, (cliente, puntuacion, comentario) in enumerate(resultados, 1):
-            emoji = "🔴" if puntuacion < 5 else "🟢" if puntuacion >= 8 else "🟡"
-            print(f"\n{i}. {cliente} - Puntuación: {puntuacion}/10 {emoji}")
-            print(f"   Comentario: '{comentario}'")
-        
-        return resultados
+                print(f"   '{comentario}'")
 
-# Sistema interactivo
-def sistema_interactivo():
-    """Sistema interactivo de encuestas de satisfacción"""
+def sistema_encuestas():
+    """Sistema principal de encuestas"""
     encuesta = EncuestaSatisfaccion()
     
     while True:
-        print("\n" + "="*50)
-        print("📊 SISTEMA DE ENCUESTAS DE SATISFACCIÓN")
-        print("="*50)
-        print("1. Agregar respuesta")
-        print("2. Calcular media de satisfacción")
-        print("3. Listar comentarios negativos")
-        print("4. Listar comentarios positivos")
-        print("5. Mostrar todas las respuestas")
-        print("6. Ver estadísticas detalladas")
-        print("7. Buscar en comentarios")
-        print("8. Salir")
+        print("\n" + "="*25)
+        print("📊 ENCUESTAS CLIENTES")
+        print("="*25)
+        print("1. Nueva respuesta")
+        print("2. Ver promedio")
+        print("3. Ver quejas")
+        print("4. Ver elogios")
+        print("5. Ver todas")
+        print("6. Estadísticas")
+        print("7. Salir")
         
-        opcion = input("\nSeleccione una opción (1-8): ").strip()
+        opcion = input("\nOpción: ").strip()
         
         if opcion == "1":
-            print("\n--- Agregar Respuesta ---")
-            cliente = input("Nombre del cliente: ").strip()
+            print("\n--- Nueva Respuesta ---")
+            cliente = input("Cliente: ")
             try:
-                puntuacion = int(input("Puntuación (1-10): ").strip())
-                comentario = input("Comentario (opcional): ").strip()
-                encuesta.agregar_respuesta(cliente, puntuacion, comentario)
-            except ValueError:
-                print("❌ Error: La puntuación debe ser un número entero")
+                puntos = int(input("Puntuación (1-10): "))
+                comentario = input("Comentario: ")
+                encuesta.agregar(cliente, puntos, comentario)
+            except:
+                print("❌ Error en los datos")
         
         elif opcion == "2":
-            print("\n--- Media de Satisfacción ---")
-            encuesta.calcular_media_satisfaccion()
+            print("\n--- Promedio ---")
+            encuesta.promedio()
         
         elif opcion == "3":
-            print("\n--- Comentarios Negativos ---")
-            encuesta.listar_comentarios_negativos()
+            print("\n--- Quejas ---")
+            encuesta.comentarios_bajos()
         
         elif opcion == "4":
-            print("\n--- Comentarios Positivos ---")
-            encuesta.listar_comentarios_positivos()
+            print("\n--- Elogios ---")
+            encuesta.comentarios_altos()
         
         elif opcion == "5":
-            print("\n--- Todas las Respuestas ---")
-            encuesta.mostrar_todas_respuestas()
+            print("\n--- Todas ---")
+            encuesta.ver_todos()
         
         elif opcion == "6":
-            print("\n--- Estadísticas Detalladas ---")
-            encuesta.mostrar_estadisticas_detalladas()
+            print("\n--- Estadísticas ---")
+            encuesta.estadisticas()
         
         elif opcion == "7":
-            print("\n--- Buscar en Comentarios ---")
-            palabra = input("Palabra a buscar: ").strip()
-            if palabra:
-                encuesta.buscar_comentarios_por_palabra(palabra)
-            else:
-                print("❌ Error: Debe ingresar una palabra para buscar")
-        
-        elif opcion == "8":
-            print("👋 ¡Hasta pronto!")
+            print("👋 ¡Hasta luego!")
             break
         
         else:
-            print("❌ Opción no válida. Por favor, seleccione 1-8")
+            print("❌ Opción no válida")
 
-# Ejemplo rápido de uso
-def ejemplo_rapido():
-    """Ejemplo rápido del sistema en funcionamiento"""
-    print("🔬 EJEMPLO RÁPIDO DEL SISTEMA")
-    print("="*40)
+# Ejemplo rápido
+def demo():
+    """Demostración del sistema"""
+    print("🌟 DEMOSTRACIÓN ENCUESTAS")
+    print("="*20)
     
     encuesta = EncuestaSatisfaccion()
     
-    # Agregar algunas respuestas de ejemplo
-    print("\n--- Agregando respuestas de ejemplo ---")
-    encuesta.agregar_respuesta("Ana García", 9, "Excelente servicio, muy profesionales")
-    encuesta.agregar_respuesta("Carlos López", 3, "Muy mala atención, demoras excesivas")
-    encuesta.agregar_respuesta("María Rodríguez", 7, "Buen servicio en general")
-    encuesta.agregar_respuesta("Pedro Sánchez", 2, "Pésima experiencia, no recomiendo")
-    encuesta.agregar_respuesta("Laura Martínez", 10, "¡Increíble! El mejor servicio")
-    encuesta.agregar_respuesta("Javier Ruiz", 4, "Podría mejorar en varios aspectos")
+    # Respuestas de ejemplo
+    print("\n--- Agregando respuestas ---")
+    encuesta.agregar("Ana García", 9, "Excelente servicio")
+    encuesta.agregar("Carlos López", 3, "Muy lento")
+    encuesta.agregar("María Rodríguez", 7, "Bien en general")
+    encuesta.agregar("Pedro Sánchez", 2, "No volveré")
     
-    # Mostrar resultados
-    print("\n--- Media de Satisfacción ---")
-    encuesta.calcular_media_satisfaccion()
+    print("\n--- Resumen ---")
+    encuesta.promedio()
+    encuesta.estadisticas()
     
-    print("\n--- Comentarios Negativos ---")
-    encuesta.listar_comentarios_negativos()
-    
-    print("\n--- Estadísticas Detalladas ---")
-    encuesta.mostrar_estadisticas_detalladas()
-    
-    print("\n--- Buscar comentarios con 'servicio' ---")
-    encuesta.buscar_comentarios_por_palabra("servicio")
+    print("\n--- Quejas ---")
+    encuesta.comentarios_bajos()
 
 if __name__ == "__main__":
-    # Ejecutar ejemplo rápido
-    ejemplo_rapido()
-    
-    # Ejecutar sistema interactivo
-    print("\n\n🎮 SISTEMA INTERACTIVO")
-    sistema_interactivo()
+    demo()
+    print("\n\n🎮 MODO INTERACTIVO")
+    sistema_encuestas()
