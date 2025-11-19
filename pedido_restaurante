@@ -1,0 +1,370 @@
+class SistemaPedidosRestaurante:
+    def __init__(self):
+        """Inicializa el sistema de pedidos"""
+        self.pedidos_activos = []  # Lista de pedidos activos
+        self.pedidos_entregados = []  # Lista de pedidos históricos
+        self.contador_pedidos = 1
+    
+    def generar_id_pedido(self):
+        """Genera un ID único para cada pedido"""
+        id_pedido = f"PED{self.contador_pedidos:04d}"
+        self.contador_pedidos += 1
+        return id_pedido
+    
+    def agregar_pedido(self, mesa, platos):
+        """
+        Agrega un nuevo pedido al sistema
+        
+        Args:
+            mesa (int/str): Número de mesa
+            platos (list): Lista de platos con sus precios
+        """
+        if not mesa:
+            print("❌ Error: El número de mesa es requerido")
+            return None
+        
+        if not platos:
+            print("❌ Error: El pedido debe contener al menos un plato")
+            return None
+        
+        # Calcular total del pedido
+        total = sum(plato["precio"] for plato in platos)
+        
+        # Crear diccionario del pedido
+        pedido = {
+            "id": self.generar_id_pedido(),
+            "mesa": mesa,
+            "platos": platos,
+            "total": total,
+            "estado": "pendiente",
+            "timestamp": self.obtener_timestamp()
+        }
+        
+        self.pedidos_activos.append(pedido)
+        print(f"✅ Pedido {pedido['id']} agregado para la Mesa {mesa}")
+        print(f"   Total: ${total:.2f}")
+        print(f"   Platos: {len(platos)}")
+        
+        return pedido["id"]
+    
+    def obtener_timestamp(self):
+        """Obtiene la fecha y hora actual formateada"""
+        from datetime import datetime
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    def entregar_pedido(self, id_pedido=None, mesa=None):
+        """
+        Marca un pedido como entregado (elimina de activos)
+        
+        Args:
+            id_pedido (str): ID del pedido a entregar
+            mesa (int/str): Mesa para buscar pedidos pendientes
+        """
+        pedido_a_entregar = None
+        
+        # Buscar por ID
+        if id_pedido:
+            for pedido in self.pedidos_activos:
+                if pedido["id"] == id_pedido:
+                    pedido_a_entregar = pedido
+                    break
+        
+        # Buscar por mesa (entregar el más antiguo)
+        elif mesa:
+            pedidos_mesa = [p for p in self.pedidos_activos if p["mesa"] == mesa]
+            if pedidos_mesa:
+                pedido_a_entregar = pedidos_mesa[0]
+        
+        if not pedido_a_entregar:
+            print("❌ Error: No se encontró el pedido especificado")
+            return False
+        
+        # Marcar como entregado y mover a historial
+        pedido_a_entregar["estado"] = "entregado"
+        pedido_a_entregar["entregado_en"] = self.obtener_timestamp()
+        
+        self.pedidos_activos.remove(pedido_a_entregar)
+        self.pedidos_entregados.append(pedido_a_entregar)
+        
+        print(f"✅ Pedido {pedido_a_entregar['id']} entregado a Mesa {pedido_a_entregar['mesa']}")
+        print(f"   Total: ${pedido_a_entregar['total']:.2f}")
+        
+        return True
+    
+    def mostrar_pedidos_pendientes(self):
+        """Muestra todos los pedidos pendientes"""
+        if not self.pedidos_activos:
+            print("✅ No hay pedidos pendientes")
+            return
+        
+        print("\n" + "="*70)
+        print("🕐 PEDIDOS PENDIENTES")
+        print("="*70)
+        
+        for pedido in self.pedidos_activos:
+            print(f"\n📋 Pedido: {pedido['id']}")
+            print(f"   Mesa: {pedido['mesa']}")
+            print(f"   Hora: {pedido['timestamp']}")
+            print(f"   Estado: {pedido['estado']}")
+            print("   Platos:")
+            
+            for i, plato in enumerate(pedido["platos"], 1):
+                print(f"     {i}. {plato['nombre']} - ${plato['precio']:.2f}")
+            
+            print(f"   💰 TOTAL: ${pedido['total']:.2f}")
+            print("-" * 50)
+        
+        print(f"\n📊 Total de pedidos pendientes: {len(self.pedidos_activos)}")
+    
+    def mostrar_resumen_mesas(self):
+        """Muestra un resumen por mesas"""
+        if not self.pedidos_activos:
+            print("✅ No hay pedidos activos")
+            return
+        
+        mesas_activas = {}
+        for pedido in self.pedidos_activos:
+            mesa = pedido["mesa"]
+            if mesa not in mesas_activas:
+                mesas_activas[mesa] = []
+            mesas_activas[mesa].append(pedido)
+        
+        print("\n" + "="*50)
+        print("🍽️  RESUMEN POR MESAS")
+        print("="*50)
+        
+        for mesa, pedidos in sorted(mesas_activas.items()):
+            total_mesa = sum(p["total"] for p in pedidos)
+            print(f"\nMesa {mesa}:")
+            print(f"  Pedidos activos: {len(pedidos)}")
+            print(f"  Total pendiente: ${total_mesa:.2f}")
+            
+            for pedido in pedidos:
+                print(f"    - {pedido['id']}: ${pedido['total']:.2f}")
+    
+    def buscar_pedido(self, id_pedido=None, mesa=None):
+        """
+        Busca un pedido específico
+        
+        Args:
+            id_pedido (str): ID del pedido
+            mesa (int/str): Número de mesa
+        """
+        resultados = []
+        
+        if id_pedido:
+            resultados = [p for p in self.pedidos_activos if p["id"] == id_pedido]
+        elif mesa:
+            resultados = [p for p in self.pedidos_activos if p["mesa"] == mesa]
+        
+        if not resultados:
+            print("❌ No se encontraron pedidos con los criterios especificados")
+            return
+        
+        print("\n" + "="*60)
+        print("🔍 RESULTADOS DE BÚSQUEDA")
+        print("="*60)
+        
+        for pedido in resultados:
+            self._mostrar_detalle_pedido(pedido)
+    
+    def _mostrar_detalle_pedido(self, pedido):
+        """Muestra el detalle de un pedido individual"""
+        print(f"\n📋 Pedido: {pedido['id']}")
+        print(f"   Mesa: {pedido['mesa']}")
+        print(f"   Hora: {pedido['timestamp']}")
+        print(f"   Estado: {pedido['estado']}")
+        print("   Platos:")
+        
+        for i, plato in enumerate(pedido["platos"], 1):
+            print(f"     {i}. {plato['nombre']} - ${plato['precio']:.2f}")
+        
+        print(f"   💰 TOTAL: ${pedido['total']:.2f}")
+    
+    def mostrar_estadisticas(self):
+        """Muestra estadísticas del sistema"""
+        total_activos = len(self.pedidos_activos)
+        total_entregados = len(self.pedidos_entregados)
+        total_general = total_activos + total_entregados
+        
+        print("\n" + "="*50)
+        print("📊 ESTADÍSTICAS DEL SISTEMA")
+        print("="*50)
+        print(f"Pedidos activos: {total_activos}")
+        print(f"Pedidos entregados: {total_entregados}")
+        print(f"Total de pedidos procesados: {total_general}")
+        
+        if total_entregados > 0:
+            total_ventas = sum(p["total"] for p in self.pedidos_entregados)
+            print(f"Ventas totales: ${total_ventas:.2f}")
+        
+        if self.pedidos_activos:
+            mesa_mas_activa = max(
+                set(p["mesa"] for p in self.pedidos_activos),
+                key=lambda m: len([p for p in self.pedidos_activos if p["mesa"] == m])
+            )
+            print(f"Mesa con más pedidos activos: {mesa_mas_activa}")
+
+# Sistema interactivo
+def sistema_interactivo():
+    """Sistema interactivo de gestión de pedidos"""
+    sistema = SistemaPedidosRestaurante()
+    
+    # Menú de platos predefinidos
+    menu_platos = {
+        "1": {"nombre": "Hamburguesa Clásica", "precio": 12.99},
+        "2": {"nombre": "Pizza Margarita", "precio": 15.50},
+        "3": {"nombre": "Ensalada César", "precio": 8.99},
+        "4": {"nombre": "Pasta Carbonara", "precio": 14.25},
+        "5": {"nombre": "Sopa del Día", "precio": 6.75},
+        "6": {"nombre": "Filete de Salmón", "precio": 18.99},
+        "7": {"nombre": "Agua Mineral", "precio": 2.50},
+        "8": {"nombre": "Refresco", "precio": 3.00},
+        "9": {"nombre": "Café", "precio": 2.25},
+        "10": {"nombre": "Postre del Día", "precio": 5.99}
+    }
+    
+    while True:
+        print("\n" + "="*50)
+        print("🍽️  SISTEMA DE PEDIDOS - RESTAURANTE")
+        print("="*50)
+        print("1. Agregar nuevo pedido")
+        print("2. Entregar pedido")
+        print("3. Mostrar pedidos pendientes")
+        print("4. Mostrar resumen por mesas")
+        print("5. Buscar pedido")
+        print("6. Ver estadísticas")
+        print("7. Salir")
+        
+        opcion = input("\nSeleccione una opción (1-7): ").strip()
+        
+        if opcion == "1":
+            print("\n--- Agregar Nuevo Pedido ---")
+            try:
+                mesa = input("Número de mesa: ").strip()
+                if not mesa:
+                    print("❌ Error: La mesa es requerida")
+                    continue
+                
+                print("\n🍴 MENÚ DE PLATOS:")
+                for key, plato in menu_platos.items():
+                    print(f"  {key}. {plato['nombre']} - ${plato['precio']:.2f}")
+                
+                platos_seleccionados = []
+                while True:
+                    seleccion = input("\nSeleccione plato (número) o 'fin' para terminar: ").strip()
+                    if seleccion.lower() == 'fin':
+                        break
+                    
+                    if seleccion in menu_platos:
+                        platos_seleccionados.append(menu_platos[seleccion])
+                        plato = menu_platos[seleccion]
+                        print(f"✅ Agregado: {plato['nombre']} - ${plato['precio']:.2f}")
+                    else:
+                        print("❌ Selección no válida")
+                
+                if platos_seleccionados:
+                    sistema.agregar_pedido(mesa, platos_seleccionados)
+                else:
+                    print("❌ No se seleccionaron platos")
+                    
+            except ValueError:
+                print("❌ Error en los datos ingresados")
+        
+        elif opcion == "2":
+            print("\n--- Entregar Pedido ---")
+            print("1. Entregar por ID de pedido")
+            print("2. Entregar por número de mesa")
+            
+            sub_opcion = input("Seleccione opción (1-2): ").strip()
+            
+            if sub_opcion == "1":
+                id_pedido = input("ID del pedido: ").strip()
+                sistema.entregar_pedido(id_pedido=id_pedido)
+            elif sub_opcion == "2":
+                mesa = input("Número de mesa: ").strip()
+                sistema.entregar_pedido(mesa=mesa)
+            else:
+                print("❌ Opción no válida")
+        
+        elif opcion == "3":
+            print("\n--- Pedidos Pendientes ---")
+            sistema.mostrar_pedidos_pendientes()
+        
+        elif opcion == "4":
+            print("\n--- Resumen por Mesas ---")
+            sistema.mostrar_resumen_mesas()
+        
+        elif opcion == "5":
+            print("\n--- Buscar Pedido ---")
+            print("1. Buscar por ID de pedido")
+            print("2. Buscar por número de mesa")
+            
+            sub_opcion = input("Seleccione opción (1-2): ").strip()
+            
+            if sub_opcion == "1":
+                id_pedido = input("ID del pedido: ").strip()
+                sistema.buscar_pedido(id_pedido=id_pedido)
+            elif sub_opcion == "2":
+                mesa = input("Número de mesa: ").strip()
+                sistema.buscar_pedido(mesa=mesa)
+            else:
+                print("❌ Opción no válida")
+        
+        elif opcion == "6":
+            print("\n--- Estadísticas ---")
+            sistema.mostrar_estadisticas()
+        
+        elif opcion == "7":
+            print("👋 ¡Hasta pronto!")
+            break
+        
+        else:
+            print("❌ Opción no válida. Por favor, seleccione 1-7")
+
+# Ejemplo rápido de uso
+def ejemplo_rapido():
+    """Ejemplo rápido del sistema en funcionamiento"""
+    print("🔬 EJEMPLO RÁPIDO DEL SISTEMA")
+    print("="*40)
+    
+    sistema = SistemaPedidosRestaurante()
+    
+    # Definir algunos platos de ejemplo
+    platos_ejemplo = [
+        {"nombre": "Hamburguesa Clásica", "precio": 12.99},
+        {"nombre": "Papas Fritas", "precio": 4.50},
+        {"nombre": "Refresco", "precio": 3.00}
+    ]
+    
+    platos_ejemplo2 = [
+        {"nombre": "Pizza Margarita", "precio": 15.50},
+        {"nombre": "Ensalada César", "precio": 8.99}
+    ]
+    
+    print("\n--- Agregando pedidos de ejemplo ---")
+    sistema.agregar_pedido("5", platos_ejemplo)
+    sistema.agregar_pedido("3", platos_ejemplo2)
+    sistema.agregar_pedido("5", [{"nombre": "Café", "precio": 2.25}])
+    
+    print("\n--- Mostrando pedidos pendientes ---")
+    sistema.mostrar_pedidos_pendientes()
+    
+    print("\n--- Resumen por mesas ---")
+    sistema.mostrar_resumen_mesas()
+    
+    print("\n--- Entregando un pedido ---")
+    # Entregar el primer pedido de la mesa 5
+    sistema.entregar_pedido(mesa="5")
+    
+    print("\n--- Estado final ---")
+    sistema.mostrar_pedidos_pendientes()
+    sistema.mostrar_estadisticas()
+
+if __name__ == "__main__":
+    # Ejecutar ejemplo rápido
+    ejemplo_rapido()
+    
+    # Ejecutar sistema interactivo
+    print("\n\n🎮 SISTEMA INTERACTIVO")
+    sistema_interactivo()
