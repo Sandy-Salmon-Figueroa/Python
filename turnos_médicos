@@ -1,127 +1,101 @@
-class SistemaTurnosMedicos:
+class TurnosMedicos:
     def __init__(self):
-        """Inicializa la cola de pacientes vacía"""
-        self.cola_pacientes = []
+        self.cola = []
     
-    def agregar_paciente(self, nombre, edad, especialidad):
-        """
-        Agrega un paciente al final de la cola
-        
-        Args:
-            nombre (str): Nombre del paciente
-            edad (int): Edad del paciente
-            especialidad (str): Especialidad médica requerida
-        """
+    def agregar(self, nombre, edad, especialidad):
+        """Agrega un paciente a la cola"""
         paciente = (nombre, edad, especialidad)
-        self.cola_pacientes.append(paciente)
-        print(f"✅ Paciente {nombre} agregado a la cola de {especialidad}")
+        self.cola.append(paciente)
+        print(f"✅ {nombre} agregado a {especialidad}")
     
-    def atender_paciente(self):
-        """
-        Atiende al primer paciente en la cola (elimina el primero)
-        
-        Returns:
-            tuple or None: Datos del paciente atendido o None si la cola está vacía
-        """
-        if not self.cola_pacientes:
-            print("❌ No hay pacientes en espera")
+    def atender(self):
+        """Atiende al siguiente paciente"""
+        if not self.cola:
+            print("✅ No hay pacientes en espera")
             return None
         
-        paciente_atendido = self.cola_pacientes.pop(0)
-        nombre, edad, especialidad = paciente_atendido
-        print(f"🎯 Atendiendo a {nombre} ({edad} años) - {especialidad}")
-        return paciente_atendido
+        nombre, edad, especialidad = self.cola.pop(0)
+        print(f"🎯 Atendiendo a {nombre} - {especialidad}")
+        return (nombre, edad, especialidad)
     
-    def mostrar_pacientes(self):
-        """Muestra todos los pacientes en espera"""
-        if not self.cola_pacientes:
-            print("📋 No hay pacientes en espera")
+    def mostrar(self):
+        """Muestra los pacientes en espera"""
+        if not self.cola:
+            print("📝 No hay pacientes en espera")
             return
         
-        print("\n" + "="*50)
-        print("📋 LISTA DE PACIENTES EN ESPERA")
-        print("="*50)
+        print("\n" + "="*30)
+        print("👥 PACIENTES EN ESPERA")
+        print("="*30)
         
-        for i, paciente in enumerate(self.cola_pacientes, 1):
-            nombre, edad, especialidad = paciente
-            print(f"{i}. {nombre} - {edad} años - {especialidad}")
-        print(f"\nTotal de pacientes en espera: {len(self.cola_pacientes)}")
-    
-    def cantidad_pacientes(self):
-        """Retorna la cantidad de pacientes en espera"""
-        return len(self.cola_pacientes)
+        for i, (nombre, edad, especialidad) in enumerate(self.cola, 1):
+            print(f"{i}. {nombre} ({edad} años) - {especialidad}")
+        
+        print(f"\nTotal: {len(self.cola)} pacientes")
 
-# Ejemplo de uso del sistema
-def main():
-    # Crear el sistema de turnos
-    sistema = SistemaTurnosMedicos()
+def sistema_turnos():
+    """Sistema principal de turnos médicos"""
+    turnos = TurnosMedicos()
     
     while True:
-        print("\n" + "="*40)
-        print("🏥 SISTEMA DE TURNOS MÉDICOS")
-        print("="*40)
+        print("\n" + "="*20)
+        print("🏥 TURNOS MÉDICOS")
+        print("="*20)
         print("1. Agregar paciente")
         print("2. Atender paciente")
-        print("3. Mostrar pacientes en espera")
+        print("3. Ver lista")
         print("4. Salir")
         
-        opcion = input("\nSeleccione una opción (1-4): ").strip()
+        opcion = input("\nOpción: ").strip()
         
         if opcion == "1":
-            print("\n--- Agregar nuevo paciente ---")
-            nombre = input("Nombre del paciente: ").strip()
+            print("\n--- Nuevo Paciente ---")
+            nombre = input("Nombre: ").strip()
+            edad = input("Edad: ").strip()
+            especialidad = input("Especialidad: ").strip()
             
-            try:
-                edad = int(input("Edad del paciente: ").strip())
-            except ValueError:
-                print("❌ Error: La edad debe ser un número entero")
-                continue
-            
-            especialidad = input("Especialidad médica: ").strip()
-            
-            if nombre and especialidad:
-                sistema.agregar_paciente(nombre, edad, especialidad)
+            if nombre and edad.isdigit() and especialidad:
+                turnos.agregar(nombre, int(edad), especialidad)
             else:
-                print("❌ Error: Nombre y especialidad no pueden estar vacíos")
+                print("❌ Datos incorrectos")
         
         elif opcion == "2":
-            print("\n--- Atender paciente ---")
-            sistema.atender_paciente()
+            print("\n--- Atender ---")
+            turnos.atender()
         
         elif opcion == "3":
-            sistema.mostrar_pacientes()
+            print("\n--- Lista ---")
+            turnos.mostrar()
         
         elif opcion == "4":
             print("👋 ¡Hasta pronto!")
             break
         
         else:
-            print("❌ Opción no válida. Por favor, seleccione 1-4")
+            print("❌ Opción no válida")
 
-# Versión simplificada para uso directo
-def ejemplo_rapido():
-    """Ejemplo rápido de uso del sistema"""
-    sistema = SistemaTurnosMedicos()
+# Ejemplo rápido
+def demo():
+    """Demostración del sistema"""
+    print("🌟 SISTEMA DE TURNOS")
+    print("="*20)
     
-    # Agregar algunos pacientes
-    sistema.agregar_paciente("Ana García", 35, "Cardiología")
-    sistema.agregar_paciente("Carlos López", 28, "Pediatría")
-    sistema.agregar_paciente("María Rodríguez", 65, "Geriatría")
+    turnos = TurnosMedicos()
     
-    # Mostrar pacientes
-    sistema.mostrar_pacientes()
+    print("\n--- Agregando pacientes ---")
+    turnos.agregar("Ana García", 35, "Cardiología")
+    turnos.agregar("Carlos López", 28, "Pediatría")
     
-    # Atender un paciente
-    sistema.atender_paciente()
+    print("\n--- Lista actual ---")
+    turnos.mostrar()
     
-    # Mostrar estado actual
-    sistema.mostrar_pacientes()
+    print("\n--- Atendiendo ---")
+    turnos.atender()
+    
+    print("\n--- Lista final ---")
+    turnos.mostrar()
 
 if __name__ == "__main__":
-    # Ejecutar el ejemplo rápido
-    print("🔬 EJEMPLO RÁPIDO DEL SISTEMA")
-    ejemplo_rapido()
-    
-    # Ejecutar el sistema interactivo
-    print("\n\n🎮 SISTEMA INTERACTIVO")
-    main()
+    demo()
+    print("\n\n🎮 MODO INTERACTIVO")
+    sistema_turnos()
