@@ -83,8 +83,9 @@ def demo():
     turnos = TurnosMedicos()
     
     print("\n--- Agregando pacientes ---")
-    turnos.agregar("Ana García", 35, "Cardiología")
-    turnos.agregar("Carlos López", 28, "Pediatría")
+    turnos.agregar("SANTA FIGUEROA", 52, "Cardiología")
+    turnos.agregar("DANNA MOREIRA", 8, "Pediatría")
+    turnos.agregar("ANDER GONZALEZ", 23, "FISIOTERAPIA")
     
     print("\n--- Lista actual ---")
     turnos.mostrar()
