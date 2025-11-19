@@ -120,13 +120,13 @@ def demo():
     control = ControlAsistencia()
     
     print("\n--- Registrando ---")
-    control.registrar("Ana García")
-    control.registrar("Carlos López")
-    control.registrar("María Rodríguez")
+    control.registrar("LUCÍA ORDÓNEZ")
+    control.registrar("JULIÁN VERA")
+    control.registrar("JOSEFINA MERO")
     
     print("\n--- Verificando ---")
-    control.verificar("Carlos López")
-    control.verificar("Pedro Sánchez")
+    control.verificar("MAYRA LÓPEZ")
+    control.verificar("JAZMIN FIGUEROA")
     
     print("\n--- Lista ---")
     control.lista()
