@@ -1,30 +1,23 @@
 class EncuestaSatisfaccion:
     def __init__(self):
         self.respuestas = []  # (cliente, puntuación, comentario)
-    
     def agregar(self, cliente, puntuacion, comentario=""):
         """Agrega una nueva respuesta"""
         if not 1 <= puntuacion <= 10:
             print("❌ La puntuación debe ser entre 1 y 10")
             return False
-        
         cliente = cliente.strip().title()
         respuesta = (cliente, puntuacion, comentario.strip())
         self.respuestas.append(respuesta)
-        
         print(f"✅ {cliente} - {puntuacion}/10")
         return True
-    
     def promedio(self):
         """Calcula y muestra el promedio"""
         if not self.respuestas:
-            print("📊 Aún no hay respuestas")
+            print("Aún no hay respuestas")
             return 0
-        
         promedio = sum(r[1] for r in self.respuestas) / len(self.respuestas)
-        
-        print(f"\n📊 PUNTAJE PROMEDIO: {promedio:.1f}/10")
-        
+        print(f"\nPUNTAJE PROMEDIO: {promedio:.1f}/10")
         if promedio >= 9:
             print("🎉 ¡Excelente!")
         elif promedio >= 7:
@@ -33,90 +26,70 @@ class EncuestaSatisfaccion:
             print("😐 Regular")
         else:
             print("⚠️ Necesita mejorar")
-        
         return promedio
-    
     def comentarios_bajos(self):
         """Muestra comentarios con puntuación baja (<5)"""
         bajos = [r for r in self.respuestas if r[1] < 5]
-        
         if not bajos:
             print("✅ No hay quejas recientes")
             return []
-        
         print("\n" + "="*40)
         print("🔴 COMENTARIOS BAJOS")
         print("="*40)
-        
         for cliente, puntos, comentario in bajos:
             print(f"\n{cliente} - {puntos}/10")
             if comentario:
                 print(f"   '{comentario}'")
-        
         return bajos
-    
     def comentarios_altos(self):
         """Muestra comentarios con puntuación alta (≥8)"""
         altos = [r for r in self.respuestas if r[1] >= 8]
-        
         if not altos:
-            print("📝 Aún no hay comentarios destacados")
+            print("Aún no hay comentarios destacados")
             return []
-        
         print("\n" + "="*40)
         print("🟢 COMENTARIOS DESTACADOS")
         print("="*40)
-        
         for cliente, puntos, comentario in altos:
             print(f"\n{cliente} - {puntos}/10")
             if comentario:
                 print(f"   '{comentario}'")
-        
         return altos
-    
     def estadisticas(self):
         """Muestra resumen general"""
         if not self.respuestas:
-            print("📈 Aún no hay datos")
+            print("Aún no hay datos")
             return
-        
         total = len(self.respuestas)
         promedio = sum(r[1] for r in self.respuestas) / total
-        
         bajos = len([r for r in self.respuestas if r[1] < 6])
         altos = len([r for r in self.respuestas if r[1] >= 8])
-        
         print("\n" + "="*30)
-        print("📈 RESUMEN")
+        print("RESUMEN")
         print("="*30)
         print(f"Total respuestas: {total}")
         print(f"Promedio: {promedio:.1f}/10")
         print(f"Bajas (<6): {bajos}")
         print(f"Altas (≥8): {altos}")
-    
     def ver_todos(self):
         """Muestra todas las respuestas"""
         if not self.respuestas:
-            print("📝 No hay respuestas aún")
+            print("No hay respuestas aún")
             return
-        
         print("\n" + "="*30)
-        print("📝 TODAS LAS RESPUESTAS")
+        print("TODAS LAS RESPUESTAS")
         print("="*30)
-        
         for cliente, puntos, comentario in self.respuestas:
             cara = "🔴" if puntos < 5 else "🟢" if puntos >= 8 else "🟡"
             print(f"\n{cliente} - {puntos}/10 {cara}")
             if comentario:
                 print(f"   '{comentario}'")
-
 def sistema_encuestas():
     """Sistema principal de encuestas"""
     encuesta = EncuestaSatisfaccion()
-    
     while True:
         print("\n" + "="*25)
-        print("📊 ENCUESTAS CLIENTES")
+        print("ENCUESTAS CLIENTES")
         print("="*25)
         print("1. Nueva respuesta")
         print("2. Ver promedio")
@@ -125,9 +98,7 @@ def sistema_encuestas():
         print("5. Ver todas")
         print("6. Estadísticas")
         print("7. Salir")
-        
         opcion = input("\nOpción: ").strip()
-        
         if opcion == "1":
             print("\n--- Nueva Respuesta ---")
             cliente = input("Cliente: ")
@@ -137,57 +108,44 @@ def sistema_encuestas():
                 encuesta.agregar(cliente, puntos, comentario)
             except:
                 print("❌ Error en los datos")
-        
         elif opcion == "2":
             print("\n--- Promedio ---")
             encuesta.promedio()
-        
         elif opcion == "3":
             print("\n--- Quejas ---")
             encuesta.comentarios_bajos()
-        
         elif opcion == "4":
             print("\n--- Elogios ---")
             encuesta.comentarios_altos()
-        
         elif opcion == "5":
             print("\n--- Todas ---")
             encuesta.ver_todos()
-        
         elif opcion == "6":
             print("\n--- Estadísticas ---")
             encuesta.estadisticas()
-        
         elif opcion == "7":
-            print("👋 ¡Hasta luego!")
+            print("¡Hasta luego!")
             break
-        
         else:
             print("❌ Opción no válida")
-
 # Ejemplo rápido
 def demo():
     """Demostración del sistema"""
-    print("🌟 DEMOSTRACIÓN ENCUESTAS")
+    print("DEMOSTRACIÓN ENCUESTAS")
     print("="*20)
-    
     encuesta = EncuestaSatisfaccion()
-    
     # Respuestas de ejemplo
     print("\n--- Agregando respuestas ---")
-    encuesta.agregar("Ana García", 9, "Excelente servicio")
-    encuesta.agregar("Carlos López", 3, "Muy lento")
-    encuesta.agregar("María Rodríguez", 7, "Bien en general")
-    encuesta.agregar("Pedro Sánchez", 2, "No volveré")
-    
+    encuesta.agregar("JOSÉ GARCÍA", 9, "Excelente servicio")
+    encuesta.agregar("KARLA OLMEDO", 3, "Muy lento")
+    encuesta.agregar("ALEJANDRA SALMON", 7, "Bien en general")
+    encuesta.agregar("ANDREW DÍAZ", 2, "No volveré")  
     print("\n--- Resumen ---")
     encuesta.promedio()
-    encuesta.estadisticas()
-    
+    encuesta.estadisticas()  
     print("\n--- Quejas ---")
     encuesta.comentarios_bajos()
-
 if __name__ == "__main__":
     demo()
-    print("\n\n🎮 MODO INTERACTIVO")
+    print("\n\n MODO INTERACTIVO")
     sistema_encuestas()
