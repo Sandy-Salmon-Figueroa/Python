@@ -1,89 +1,70 @@
 class InventarioTienda:
     def __init__(self):
         self.productos = {}
-        self.agotados = set()
-    
+        self.agotados = set()    
     def agregar(self, nombre, cantidad):
         """Agrega o actualiza un producto en el inventario"""
         if cantidad <= 0:
             print("❌ La cantidad debe ser mayor a 0")
-            return
-        
-        nombre = nombre.lower().strip()
-        
+            return     
+        nombre = nombre.lower().strip()     
         if nombre in self.productos:
             self.productos[nombre] += cantidad
             print(f"✅ {nombre.title()} actualizado - Stock: {self.productos[nombre]}")
         else:
             self.productos[nombre] = cantidad
-            print(f"✅ {nombre.title()} agregado - Stock: {cantidad}")
-        
+            print(f"✅ {nombre.title()} agregado - Stock: {cantidad}")     
         # Si tenía stock cero y ahora tiene, lo quitamos de agotados
         if nombre in self.agotados and self.productos[nombre] > 0:
             self.agotados.remove(nombre)
-            print(f"🔄 {nombre.title()} ya tiene stock disponible")
-    
+            print(f"{nombre.title()} ya tiene stock disponible")   
     def vender(self, nombre, cantidad):
         """Vende una cantidad específica de un producto"""
-        nombre = nombre.lower().strip()
-        
+        nombre = nombre.lower().strip()       
         if nombre not in self.productos:
             print(f"❌ {nombre.title()} no está en el inventario")
-            return False
-        
+            return False      
         if cantidad <= 0:
             print("❌ La cantidad debe ser mayor a 0")
-            return False
-        
+            return False     
         if self.productos[nombre] < cantidad:
             print(f"❌ Stock insuficiente de {nombre.title()}")
             print(f"   Disponible: {self.productos[nombre]}")
-            return False
-        
+            return False     
         # Realizar venta
         self.productos[nombre] -= cantidad
         print(f"✅ Vendidos {cantidad} de {nombre.title()}")
-        print(f"   Stock restante: {self.productos[nombre]}")
-        
+        print(f"   Stock restante: {self.productos[nombre]}")     
         # Verificar si se agotó
         if self.productos[nombre] == 0:
             self.agotados.add(nombre)
-            print(f"⚠️ {nombre.title()} se ha agotado")
-        
-        return True
-    
+            print(f"⚠️ {nombre.title()} se ha agotado")     
+        return True 
     def mostrar(self):
         """Muestra todo el inventario"""
         if not self.productos:
-            print("📋 El inventario está vacío")
-            return
-        
+            print("El inventario está vacío")
+            return     
         print("\n" + "="*40)
-        print("📋 INVENTARIO")
-        print("="*40)
-        
+        print("INVENTARIO")
+        print("="*40)     
         for producto in sorted(self.productos.keys()):
             stock = self.productos[producto]
             estado = "🔴 AGOTADO" if stock == 0 else f"🟢 {stock} unidades"
-            print(f"• {producto.title():<15} - {estado}")
-    
+            print(f"• {producto.title():<15} - {estado}") 
     def ver_agotados(self):
         """Muestra productos sin stock"""
         if not self.agotados:
             print("✅ Todos los productos tienen stock")
-            return
-        
+            return  
         print("\n" + "="*30)
         print("🔴 SIN STOCK")
-        print("="*30)
-        
+        print("="*30) 
         for i, producto in enumerate(sorted(self.agotados), 1):
             print(f"{i}. {producto.title()}")
-    
     def consultar(self, nombre):
         """Consulta el stock de un producto"""
-        nombre = nombre.lower().strip()
-        
+        nombre = nombre.lower().strip()   
         if nombre in self.productos:
             stock = self.productos[nombre]
             if stock == 0:
@@ -94,22 +75,19 @@ class InventarioTienda:
         else:
             print(f"❌ {nombre.title()} no encontrado")
             return None
-    
     def estadisticas(self):
         """Muestra resumen del inventario"""
         total = len(self.productos)
         disponibles = sum(1 for stock in self.productos.values() if stock > 0)
         sin_stock = len(self.agotados)
-        stock_total = sum(self.productos.values())
-        
+        stock_total = sum(self.productos.values())   
         print("\n" + "="*40)
-        print("📊 ESTADÍSTICAS")
+        print("ESTADÍSTICAS")
         print("="*40)
         print(f"Total productos: {total}")
         print(f"Con stock: {disponibles}")
         print(f"Sin stock: {sin_stock}")
-        print(f"Stock total: {stock_total} unidades")
-        
+        print(f"Stock total: {stock_total} unidades")    
         if self.productos:
             # Producto con más stock
             mayor = max(self.productos.items(), key=lambda x: x[1])
@@ -119,14 +97,12 @@ class InventarioTienda:
                 menor = min(con_stock.items(), key=lambda x: x[1])
                 print(f"Mayor stock: {mayor[0].title()} ({mayor[1]})")
                 print(f"Menor stock: {menor[0].title()} ({menor[1]})")
-
 def menu_principal():
     """Interfaz de usuario principal"""
     tienda = InventarioTienda()
-    
     while True:
         print("\n" + "="*30)
-        print("🏪 INVENTARIO TIENDA")
+        print("INVENTARIO TIENDA")
         print("="*30)
         print("1. Agregar producto")
         print("2. Vender producto") 
@@ -134,10 +110,8 @@ def menu_principal():
         print("4. Ver sin stock")
         print("5. Consultar producto")
         print("6. Estadísticas")
-        print("7. Salir")
-        
-        opcion = input("\nOpción: ").strip()
-        
+        print("7. Salir")    
+        opcion = input("\nOpción: ").strip()    
         if opcion == "1":
             print("\n--- Agregar ---")
             producto = input("Producto: ")
@@ -145,8 +119,7 @@ def menu_principal():
                 cantidad = int(input("Cantidad: "))
                 tienda.agregar(producto, cantidad)
             except ValueError:
-                print("❌ La cantidad debe ser un número")
-        
+                print("❌ La cantidad debe ser un número")    
         elif opcion == "2":
             print("\n--- Vender ---")
             producto = input("Producto: ")
@@ -154,66 +127,52 @@ def menu_principal():
                 cantidad = int(input("Cantidad: "))
                 tienda.vender(producto, cantidad)
             except ValueError:
-                print("❌ La cantidad debe ser un número")
-        
+                print("❌ La cantidad debe ser un número")   
         elif opcion == "3":
             print("\n--- Inventario ---")
-            tienda.mostrar()
-        
+            tienda.mostrar()   
         elif opcion == "4":
             print("\n--- Sin Stock ---")
-            tienda.ver_agotados()
-        
+            tienda.ver_agotados()   
         elif opcion == "5":
             print("\n--- Consultar ---")
             producto = input("Producto: ")
-            tienda.consultar(producto)
-        
+            tienda.consultar(producto)   
         elif opcion == "6":
             print("\n--- Estadísticas ---")
-            tienda.estadisticas()
-        
+            tienda.estadisticas()   
         elif opcion == "7":
-            print("👋 ¡Hasta pronto!")
-            break
-        
+            print("¡Hasta pronto!")
+            break   
         else:
             print("❌ Opción no válida")
-
 # Ejemplo de uso
 def demo():
     """Demostración rápida del sistema"""
     print("🔬 DEMOSTRACIÓN")
     print("="*20)
-    
     inventario = InventarioTienda()
-    
     # Agregar productos
     print("\n--- Agregando ---")
     inventario.agregar("Laptop", 5)
     inventario.agregar("Mouse", 10)
     inventario.agregar("Teclado", 3)
-    
     # Mostrar inventario
     print("\n--- Inventario ---")
     inventario.mostrar()
-    
     # Vender algunos
     print("\n--- Vendiendo ---")
     inventario.vender("Mouse", 3)
     inventario.vender("Teclado", 3)  # Se agota
-    
     # Estado final
     print("\n--- Estado final ---")
     inventario.mostrar()
     inventario.ver_agotados()
     inventario.estadisticas()
-
 if __name__ == "__main__":
     # Ejecutar demostración
     demo()
-    
     # Ejecutar sistema interactivo
-    print("\n\n🎮 MODO INTERACTIVO")
+    print("\n\n MODO INTERACTIVO")
     print("="*20)
     menu_principal()
